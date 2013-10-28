@@ -3,7 +3,7 @@ spacepython
 
 Python version of the <a href="https://github.com/nudgepad/space">Space</a> language. 
 
-Currently support 'get', 'set', 'toJSON', 'clone', 'clear', 'lenght', 'indexOf', 'getKeys'
+Currently support 'get', 'set', 'toJSON', 'clone', 'clear', 'lenght', 'getKeys'
 
 Usage
 -------
