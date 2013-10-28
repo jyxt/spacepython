@@ -98,6 +98,9 @@ class Space:
 
     # misc
 
+    def has(self, key):
+        return key in self.__data.keys()
+
     def __clear(self):
         self.__data.clear()
 
@@ -117,7 +120,7 @@ class Space:
         return self.__data.keys()
 
     def indexOf(self, key=None):
-        if key:
+        if key and self.has(key):
             return self.getKeys().index(key)
 
     # JSON
@@ -134,13 +137,34 @@ class Space:
                 return o.jsonable()
             return json.JSONEncoder.default(self, o)
 
+    def __str__(self):
+        return self.__str_helper(0)
+
+    def __str_helper(self, spaces):
+        string = ''
+
+        if not self.__data:
+            return ''
+
+        for key, value in self.__data.items():
+            string += ' '*spaces + key  # equivalent of Space.strRpeat in js code
+            if isinstance(value, Space):
+                string += '\n' + value.__str_helper(spaces + 1)
+    #        elif value == '':
+     #           string += ' \n'
+            elif '\n' in value.__str__():
+                string += ' ' + value.replace('\n', ('\n' + ' '*(spaces + 1))) + '\n'
+            else:
+                string += ' ' + value + '\n'
+
+        return string
+
 
 if __name__ == '__main__':
-    space = Space('a\n b\naa 11\n')
-    s2 = Space('name John\nage 29\nfavoriteColors\n blue\n green\n red 1\n')
+    space = Space('name John\n age\nfavoriteColors\n blue\n green\n red 1\n')
+    print space.toJSON()
 
-    ss = Space('name John age 29 favoriteColors blue green red')
-    print ss.toJSON()
+    print space
 
 
 

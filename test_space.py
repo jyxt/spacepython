@@ -113,4 +113,19 @@ class TestMultiline(TestCase):
         self.assertEqual(space4.get('brave'), '\nnew\nworld', 'ml begin with nl value correct')
         
         space5 =  Space('brave \n new\n world')
-        
+
+
+class TestToStr(TestCase):
+    def test__str__(self):
+        space = Space("hello world")
+        self.assertEqual(space.__str__(), 'hello world\n')
+        space.set('foo', 'bar')
+        self.assertEqual(space.__str__(), 'foo bar\nhello world\n')
+
+        space2 = Space('john\n age 5')
+        self.assertEqual(space2.__str__(), 'john\n age 5\n')
+        space2.set('multiline', 'hello\nworld')
+        self.assertEqual(space2.__str__(), 'john\n age 5\nmultiline hello\n world\n')
+        space2.set('other', 'foobar')
+        self.assertEqual(space2.__str__(), 'john\n age 5\nmultiline hello\n world\nother foobar\n')
+
