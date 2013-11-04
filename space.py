@@ -13,7 +13,7 @@ leafPattern = re.compile('^([^ ]+) ')  # not space + one space
 class Space:
 
     def __init__(self, content=None):
-        self.__data = OrderedDict
+        self.__data = OrderedDict()
         if content:
             self.__load(content)
 
@@ -21,8 +21,7 @@ class Space:
         if isinstance(content, basestring):
             self.__load_from_string(content)
         elif isinstance(content, Space):
-            # this works but not great to call jsonable
-            self.__data = copy.deepcopy(content.jsonable())
+            self.__data = copy.deepcopy(content._Space__data)  # not the best way to do it
 
     def __load_from_string(self, string):
 
@@ -80,16 +79,15 @@ class Space:
     def set(self, path, value):
         if path and value:
             path = str(path)
-            return self.__setValueByPath(path, value)
+            return self.__set_value_by_path(path, value)
 
-    def __setValueByPath(self, path, value):
+    def __set_value_by_path(self, path, value):
         if " " not in path:
             self.__set_data(path, value)
             return self  # for chanining
         path = ' '.join(path.split())
         first, separator, rest = path.partition(' ')
-        return self.__get_value_by_key(first).__setValueByPath(rest, value)
-
+        return self.__get_value_by_key(first).__set_value_by_path(rest, value)
 
     # TODO:
     def is_xpath(self, content):
@@ -124,7 +122,7 @@ class Space:
 
     # JSON
     def jsonable(self):
-        return self.__data
+        return dict(self.__data)  # just convert it to dict, since JSON is unordered
 
     def to_json(self):
         return self.SpaceEncoder().encode(self)
