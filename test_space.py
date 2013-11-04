@@ -73,7 +73,7 @@ class TestAppend(TestCase):  # haven't done the 'on append incre count' thing as
         space.set('foo2', 'bar')
         space.append('foo', 'two')
         self.assertEqual(space.get('foo'), 'bar')
-        self.assertEqual(space.length(), )
+        self.assertEqual(space.length(), 4)
 
 
 
