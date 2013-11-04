@@ -3,7 +3,7 @@ __author__ = 'tesse'
 import json
 import re
 import copy
-
+from collections import OrderedDict
 
 splitInputStringPattern = re.compile('\n(?! )')  # newline with no space
 spacePattern = re.compile('^([^ ]+)(\n|$)')  # not space + newline|eol
@@ -13,18 +13,18 @@ leafPattern = re.compile('^([^ ]+) ')  # not space + one space
 class Space:
 
     def __init__(self, content=None):
-        self.__data = {}
+        self.__data = OrderedDict
         if content:
             self.__load(content)
 
     def __load(self, content):
         if isinstance(content, basestring):
-            self.__loadFromString(content)
+            self.__load_from_string(content)
         elif isinstance(content, Space):
             # this works but not great to call jsonable
             self.__data = copy.deepcopy(content.jsonable())
 
-    def __loadFromString(self, string):
+    def __load_from_string(self, string):
 
         # remove leading spaces
         string = string.lstrip()
@@ -41,41 +41,41 @@ class Space:
             if spaceMatch:
                 match = spaceMatch.groups()[0]  # returns
                 print spaceMatch.groups()[1]
-                self.__setData(match, Space(space[len(match):].replace('\n ', '\n')))
+                self.__set_data(match, Space(space[len(match):].replace('\n ', '\n')))
             elif leafPattern.search(space):
                 match = leafPattern.search(space).groups()[0]
-                self.__setData(match, space[len(match)+1:].replace('\n ', '\n'))
+                self.__set_data(match, space[len(match)+1:].replace('\n ', '\n'))
 
-    def __setData(self, key, value):
+    def __set_data(self, key, value):
         self.__data[key] = value
 
-    def __getValueByKey(self, key):
+    def __get_value_by_key(self, key):
         if key in self.__data.keys():
             return self.__data[key]
 
-    def __getValueByString(self, string):
+    def __get_value_by_string(self, string):
         if not string:
             raise ValueError("input string can't be empty")
         string = string.strip()  # remove leading and trailing whitespace
 
         # single entry, return from __data[key]
         if " " not in string:
-            return self.__getValueByKey(string)
+            return self.__get_value_by_key(string)
 
         # convert multiple spaces to single space
         string = ' '.join(string.split())
 
         # pop first entry, recursion
         first, separator, rest = string.partition(' ')
-        firstValue = self.__getValueByKey(first)
+        firstValue = self.__get_value_by_key(first)
 
         # if first key has non-None value
         if firstValue:
-            return firstValue.__getValueByString(rest)
+            return firstValue.__get_value_by_string(rest)
 
         # TODO: verify get, set input types
     def get(self, content):
-        return self.__getValueByString(content)
+        return self.__get_value_by_string(content)
 
     def set(self, path, value):
         if path and value:
@@ -84,16 +84,15 @@ class Space:
 
     def __setValueByPath(self, path, value):
         if " " not in path:
-            self.__setData(path, value)
+            self.__set_data(path, value)
             return self  # for chanining
         path = ' '.join(path.split())
         first, separator, rest = path.partition(' ')
-        return self.__getValueByKey(first).__setValueByPath(rest, value)
-
+        return self.__get_value_by_key(first).__setValueByPath(rest, value)
 
 
     # TODO:
-    def isXpath(self, content):
+    def is_xpath(self, content):
         return
 
     # misc
@@ -116,18 +115,18 @@ class Space:
     def length(self):
         return len(self.__data)
 
-    def getKeys(self):
+    def get_keys(self):
         return self.__data.keys()
 
-    def indexOf(self, key=None):
+    def index_of(self, key=None):
         if key and self.has(key):
-            return self.getKeys().index(key)
+            return self.get_keys().index(key)
 
     # JSON
     def jsonable(self):
         return self.__data
 
-    def toJSON(self):
+    def to_json(self):
         return self.SpaceEncoder().encode(self)
 
     class SpaceEncoder(json.JSONEncoder):
@@ -162,7 +161,7 @@ class Space:
 
 if __name__ == '__main__':
     space = Space('name John\n age\nfavoriteColors\n blue\n green\n red 1\n')
-    print space.toJSON()
+    print space.to_json()
 
     print space
 

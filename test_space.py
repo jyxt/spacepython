@@ -12,7 +12,7 @@ class TestSpace(TestCase):
     def testIndexOf(self):
         space = Space("Hello World")
         self.assertEqual(space.length(), 1)
-        self.assertEqual(space.indexOf('Hello'), 0, 'indexOf should be correct')
+        self.assertEqual(space.index_of('Hello'), 0, 'indexOf should be correct')
 
     def testGetSet(self):
         space = Space('Hello World')
