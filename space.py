@@ -3,7 +3,6 @@ __author__ = 'tesse'
 import json
 import re
 import copy
-from collections import OrderedDict
 
 splitInputStringPattern = re.compile('\n(?! )')  # newline with no space
 spacePattern = re.compile('^([^ ]+)(\n|$)')  # not space + newline|eol
@@ -13,7 +12,7 @@ leafPattern = re.compile('^([^ ]+) ')  # not space + one space
 class Space:
 
     def __init__(self, content=None):
-        self.__data = OrderedDict()
+        self.__data = []
         if content:
             self.__load(content)
 
@@ -46,11 +45,18 @@ class Space:
                 self.__set_data(match, space[len(match)+1:].replace('\n ', '\n'))
 
     def __set_data(self, key, value):
-        self.__data[key] = value
+        # if exist then replace otherwise append
+        if self.has(key):
+            self.__data[self.index_of(key)] = (key, value)
+        else:
+            self.__data.append((key, value))
+
+    def append(self, key, value):
+        self.__data.append((key, value))
 
     def __get_value_by_key(self, key):
-        if key in self.__data.keys():
-            return self.__data[key]
+        # [v for k, v in self.__data if k == key]  # returns a list values with matching key
+        return next((v for k, v in self.__data if k == key), None)
 
     def __get_value_by_string(self, string):
         if not string:
@@ -96,10 +102,11 @@ class Space:
     # misc
 
     def has(self, key):
-        return key in self.__data.keys()
+        if self.__data:
+            return key in zip(*self.__data)[0]
 
     def __clear(self):
-        self.__data.clear()
+        self.__data = []
 
     def clear(self, string=None):
         self.__clear()
@@ -114,7 +121,7 @@ class Space:
         return len(self.__data)
 
     def get_keys(self):
-        return self.__data.keys()
+        return zip(*self.__data)[0]
 
     def index_of(self, key=None):
         if key and self.has(key):
@@ -143,7 +150,7 @@ class Space:
         if not self.__data:
             return ''
 
-        for key, value in self.__data.items():
+        for key, value in self.__data:
             string += ' '*spaces + key  # equivalent of Space.strRpeat in js code
             if isinstance(value, Space):
                 string += '\n' + value.__str_helper(spaces + 1)
