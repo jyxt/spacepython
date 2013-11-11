@@ -12,7 +12,7 @@ class TestSpace(TestCase):
     def testIndexOf(self):
         space = Space("Hello World")
         self.assertEqual(space.length(), 1)
-        self.assertEqual(space.indexOf('Hello'), 0, 'indexOf should be correct')
+        self.assertEqual(space.index_of('Hello'), 0, 'indexOf should be correct')
 
     def testGetSet(self):
         space = Space('Hello World')
@@ -66,7 +66,16 @@ domains\n\
         self.assertEqual(space.get('domains test.test.com pages home settings data title'), 'Hello, World', 'Multiline creation shuold be OK')
 
 
-# append not implemented since 'dict' is unordered in python
+class TestAppend(TestCase):  # haven't done the 'on append incre count' thing as in js verion
+    def testAppend(self):
+        space = Space('hello world')
+        space.append('foo', 'bar')
+        space.set('foo2', 'bar')
+        space.append('foo', 'two')
+        self.assertEqual(space.get('foo'), 'bar')
+        self.assertEqual(space.length(), 4)
+
+
 
 
 class TestClear(TestCase):
@@ -119,8 +128,15 @@ class TestToStr(TestCase):
     def test__str__(self):
         space = Space("hello world")
         self.assertEqual(space.__str__(), 'hello world\n')
+
+        # ordered
         space.set('foo', 'bar')
-        self.assertEqual(space.__str__(), 'foo bar\nhello world\n')
+        self.assertEqual(space.__str__(), 'hello world\nfoo bar\n')
+
+        # ordered
+        space = Space('hello world\nline two')
+        self.assertEqual(space.__str__(), 'hello world\nline two\n')
+
 
         space2 = Space('john\n age 5')
         self.assertEqual(space2.__str__(), 'john\n age 5\n')
