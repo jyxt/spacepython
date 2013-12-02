@@ -18,6 +18,7 @@ class Space:
 
     def __init__(self, content=None):
         self.__data = []
+        self.__events = {}
         if content:
             self.__load(content)
 
@@ -217,8 +218,27 @@ class Space:
     def create(self, k, v):
         self.__data.append([k, v])
 
-    # observer pattern with on, off, trigger
+    # observer
+    def on(self, event, callback):  # doesn't check if duplicate events?
+        if event not in self.__events:
+            self.__events[event] = []
+        self.__events[event].append(callback)
 
+    def off(self, event, callback):
+        if event not in self.__events:
+            return None
+        try:
+            index = self.__events[event].index(callback)
+            del self.__events[event][index]
+        except ValueError:
+            return None
+
+    def trigger(self, event, *args):
+        if event not in self.__events:
+            return None
+        for callback in self.__events[event]:
+            print 'triggered ' + event
+            callback(*args)
 
 
 

@@ -74,7 +74,29 @@ domains\n\
         space = Space('hello world')
         space.prepend('first', 'word')
         self.assertEqual(space.__str__(), 'first word\nhello world\n')
-        
+
+    def test_on_off(self):
+        space = Space('hello world')
+        test_fun = lambda: 'test'
+        space.on('test', test_fun)
+        self.assertIn('test', space._Space__events)
+        space.off('test', test_fun)
+        self.assertEqual(space._Space__events['test'], [])
+
+    def test_trigger(self):
+        space = Space('hello world')
+
+        class Count():
+            def __init__(self):
+                self.count = 0
+            def incr(self):
+                self.count += 1
+
+        c = Count()
+        space.on('change', c.incr)
+        space.trigger('change')
+        self.assertEqual(c.count, 1)
+
 
 class TestAppend(TestCase):  # haven't done the 'on append incre count' thing as in js verion
     def test_append(self):
